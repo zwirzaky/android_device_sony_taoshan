@@ -37,7 +37,7 @@ on init
     write /proc/sys/vm/page-cluster 0
 
 on fs
-    mount_all fstab.qcom
+    mount_all fstab.qcom --early
 
     chmod 0750 /ftma/cci-flex.sh
     chmod 0750 /ftma/custom-flex.sh

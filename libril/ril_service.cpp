@@ -29,6 +29,7 @@
 #include <hidl/HidlTransportSupport.h>
 #include <utils/SystemClock.h>
 #include <inttypes.h>
+#include <cutils/properties.h>
 
 #define INVALID_HEX_CHAR 16
 
@@ -597,6 +598,20 @@ bool dispatchStrings(int serial, int slotId, int request, bool allowEmpty, int c
 #endif
         free(pStrings);
     }
+
+    /**
+      * Qualcomm's RIL doesn't seem to issue any callbacks for opcode 47
+      * This may be a bug on how we call rild or simply some proprietary 'feature'
+      * ..and we don't care: We simply send a SUCCESS message back to the caller to
+      * indicate that we received the command & unblock the UI.
+      * The user will still see if the registration was OK by using the
+      * normal signal meter
+      */
+    if (request == RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL) {
+        RLOGE("Sending fake success event for request %s", requestToString(request));
+        RIL_onRequestComplete(pRI, RIL_E_SUCCESS, NULL, 0);
+    }
+
     return true;
 }
 
@@ -1329,7 +1344,7 @@ Return<void> RadioImpl::setNetworkSelectionModeAutomatic(int32_t serial) {
 #if VDBG
     RLOGD("setNetworkSelectionModeAutomatic: serial %d", serial);
 #endif
-    dispatchVoid(serial, mSlotId, RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC);
+    dispatchStrings(serial, mSlotId, RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC, 0);
     return Void();
 }
 
@@ -1338,8 +1353,8 @@ Return<void> RadioImpl::setNetworkSelectionModeManual(int32_t serial,
 #if VDBG
     RLOGD("setNetworkSelectionModeManual: serial %d", serial);
 #endif
-    dispatchString(serial, mSlotId, RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL,
-            operatorNumeric.c_str());
+    dispatchStrings(serial, mSlotId, RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL,
+            1, operatorNumeric.c_str());
     return Void();
 }
 
@@ -4538,20 +4553,21 @@ int radio::getAvailableNetworksResponse(int slotId,
 #if VDBG
     RLOGD("getAvailableNetworksResponse: serial %d", serial);
 #endif
+    int mqanelements = property_get_int32("ro.ril.telephony.mqanelements", 4);
 
     if (radioService[slotId]->mRadioResponse != NULL) {
         RadioResponseInfo responseInfo = {};
         populateResponseInfo(responseInfo, serial, responseType, e);
         hidl_vec<OperatorInfo> networks;
         if ((response == NULL && responseLen != 0)
-                || responseLen % (4 * sizeof(char *))!= 0) {
+                || responseLen % (mqanelements * sizeof(char *))!= 0) {
             RLOGE("getAvailableNetworksResponse Invalid response: NULL");
             if (e == RIL_E_SUCCESS) responseInfo.error = RadioError::INVALID_RESPONSE;
         } else {
             char **resp = (char **) response;
             int numStrings = responseLen / sizeof(char *);
-            networks.resize(numStrings/4);
-            for (int i = 0, j = 0; i < numStrings; i = i + 4, j++) {
+            networks.resize(numStrings/mqanelements);
+            for (int i = 0, j = 0; i < numStrings; i = i + mqanelements, j++) {
                 networks[j].alphaLong = convertCharPtrToHidlString(resp[i]);
                 networks[j].alphaShort = convertCharPtrToHidlString(resp[i + 1]);
                 networks[j].operatorNumeric = convertCharPtrToHidlString(resp[i + 2]);
