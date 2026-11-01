@@ -13,6 +13,7 @@
 # Executables
 /sbin/tad_static                                u:object_r:tad_static_exec:s0
 /system/bin/akmd8963                            u:object_r:akmd8963_exec:s0
+/system/bin/mm-qcamera-daemon                   u:object_r:mm-qcamerad_exec:s0
 /system/bin/cci_tatest                          u:object_r:cci_tatest_exec:s0
 /system/bin/taimport                            u:object_r:taimport_exec:s0
 /system/bin/ta_qmi_service                      u:object_r:ta_qmi_service_exec:s0

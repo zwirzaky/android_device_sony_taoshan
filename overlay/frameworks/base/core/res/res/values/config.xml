@@ -105,6 +105,11 @@
          Software implementation will be used if config_hardware_auto_brightness_available is not set -->
     <bool name="config_automatic_brightness_available">true</bool>
 
+    <!-- This legacy camera HAL runs its CameraService inside mediaserver (UID 1013),
+         not in the separate cameraserver process. Without this, CameraServiceProxy
+         rejects the pingForUserUpdate() call and mAllowedUsers stays empty. -->
+    <bool name="config_allowMediaUidForCameraServiceProxy">true</bool>
+
     <!-- If this is true, the screen will come on when you unplug usb/power/whatever. -->
     <bool name="config_unplugTurnsOnScreen">true</bool>
 

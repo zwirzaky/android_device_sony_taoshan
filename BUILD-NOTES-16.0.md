@@ -72,13 +72,22 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 12. USB ADB/MTP: port functionfs do `android.c` (funkcja `ffs`, alias `adb`),
     montowanie functionfs i `f_ffs/aliases=adb` w init. Działa jako
     `0fce:5192` (`mtp,adb`).
+13. Camera/SELinux: `/system/bin/mm-qcamera-daemon` dostał etykietę
+    `mm-qcamerad_exec` (wcześniej `system_file`, więc daemon działał w domenie
+    `init` i nie mógł otworzyć `/dev/video100`). Dodano też odczyt
+    generycznego `sysfs` dla `mm-qcamerad` (węzeł `id`).
+14. Camera/CameraService: `config_allowMediaUidForCameraServiceProxy=true`.
+    W tym legacy porcie `CameraService` działa w `mediaserver` (UID 1013),
+    a domyślna wartość `false` powodowała odrzucenie `pingForUserUpdate()`
+    i puste `mAllowedUsers` — kamera odrzucała każdą aplikację.
 
 ## Znane problemy
 
 - `avc: denied { ioctl }` dla `hci_qcomm_init` na `/dev/smd3` — nie blokuje
   działania BT, ale można dodać allow w sepolicy.
-- Camera i RIL są do dokończenia (camera daemon już się linkuje, ale sama
-  kamera nie była testowana; RIL wymaga SIM).
+- Camera: w build14 dodana etykieta SELinux dla `mm-qcamera-daemon` i dostęp
+  do `sysfs`; wymaga testu po wgraniu.
+- RIL wymaga SIM i testu.
 - 1 GB RAM / 8 GB storage — ROM jest ciężki.
 
 ## Flashowanie
