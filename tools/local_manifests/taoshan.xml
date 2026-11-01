@@ -13,9 +13,25 @@
            path="device/sony/common"
            remote="LineageOS" revision="lineage-16.0" />
 
+  <!-- Patched fork: power HAL Android 9 compatibility -->
   <project name="android_device_qcom_common"
            path="device/qcom/common"
-           remote="LineageOS" revision="lineage-15.1" />
+           remote="zwirzaky" revision="lineage-16.0-bringup" />
+
+  <!-- Patched fork: legacy text relocations + O_TMPFILE fallback -->
+  <remove-project name="LineageOS/android_bionic" />
+  <project name="android_bionic"
+           path="bionic"
+           remote="zwirzaky" revision="lineage-16.0-bringup" />
+
+  <!-- Patched fork for hardware/ril-caf; hardware/ril stays upstream -->
+  <remove-project name="LineageOS/android_hardware_ril" />
+  <project name="LineageOS/android_hardware_ril"
+           path="hardware/ril"
+           remote="LineageOS" revision="lineage-16.0" />
+  <project name="android_hardware_ril"
+           path="hardware/ril-caf"
+           remote="zwirzaky" revision="lineage-16.0-bringup" />
 
   <!-- Working kernel base, with a README/TODO for the 16.0 bring-up -->
   <project name="android_kernel_sony_msm8930"

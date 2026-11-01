@@ -8,6 +8,9 @@ LineageOS 16.0 (Android 9).
 - Kernel: `zwirzaky/android_kernel_sony_msm8930`, branch
   `lineage-16.0-bringup` (3.4, based on the working `oreo` base)
 - Vendor blobs: `zwirzaky/proprietary_vendor_sony`, `lineage-16.0`
+- Patched forks: `zwirzaky/android_bionic`,
+  `zwirzaky/android_device_qcom_common`, `zwirzaky/android_hardware_ril`
+  (branch `lineage-16.0-bringup`)
 - Shared: LineageOS `device/sony/common` `lineage-16.0`,
   `device/qcom/common` `lineage-15.1`
 
@@ -38,7 +41,8 @@ repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
 # WebView APKs are Git LFS pointers
 device/sony/taoshan/tools/fetch-lfs.sh
 
-# Apply the qcom-common / bionic / ril-caf patches
+# Optional: patches are already in the zwirzaky forks below.
+# Run only if you switch bionic/qcom/common/ril-caf back to upstream.
 device/sony/taoshan/tools/apply-patches.sh
 
 # Build
