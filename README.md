@@ -21,4 +21,5 @@ Camera  | 8MPx, LED Flash
 
 ![Sony Xperia L](http://cdn2.gsmarena.com/vv/pics/sony/sony-xperia-l-01.jpg "Sony Xperia L in black")
 
-This branch is for building LineageOS 15.1 (or Android Oreo 8.1 AOSP based) ROMS.
+This branch is for building LineageOS 16.0 (Android 9 AOSP based) ROMs.
+See BUILD-NOTES-16.0.md for the current bring-up status and known issues.
