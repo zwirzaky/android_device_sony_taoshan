@@ -9,7 +9,7 @@ Port jest **bootowalny i testowany na telefonie**:
 - **Bluetooth działa** (`state: ON`, MAC `1C:7B:21:A2:6A:7C`),
 - **ADB po WiFi działa** (`adb connect <IP>:5555`),
 - **sleep/wake działa** po poprawkach sensorów i linkera,
-- MTP/USB ADB — nadal znany problem starego kernela (patrz niżej).
+- **USB ADB i MTP działają** (functionfs + alias `adb`).
 
 Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 
@@ -19,8 +19,8 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 440 993 299 B (~421 MiB)
-- MD5: `b9d0dfb4a775f70c9801100c63b0027b`
+- rozmiar: 441 000 177 B (~421 MiB)
+- MD5: `aafdb6525b55bcb365a4a2e0fb41ca5b`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
 
@@ -69,12 +69,12 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 10. ccache: `CCACHE_TEMPDIR=/tmp`; Docker: `python3`, `xz-utils`, `squashfs-tools`.
 11. Sleep/wake: po powyższych poprawkach `system_server` zszedł ze 158% do ~3%
     CPU, a wake wraca w ~4 s.
+12. USB ADB/MTP: port functionfs do `android.c` (funkcja `ffs`, alias `adb`),
+    montowanie functionfs i `f_ffs/aliases=adb` w init. Działa jako
+    `0fce:5192` (`mtp,adb`).
 
 ## Znane problemy
 
-- **USB ADB / MTP**: kernel ma legacy `f_adb` (`/dev/android_adb`), a Android 9
-  `adbd` używa functionfs. Po włączeniu USB debugging gadget się wyłącza.
-  MTP działa, ADB po WiFi działa. Naprawa wymaga portu functionfs w kernelu.
 - `avc: denied { ioctl }` dla `hci_qcomm_init` na `/dev/smd3` — nie blokuje
   działania BT, ale można dodać allow w sepolicy.
 - Camera i RIL są do dokończenia (camera daemon już się linkuje, ale sama

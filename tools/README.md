@@ -61,8 +61,9 @@ adb shell twrp install /sdcard/lineage-16.0-taoshan.zip
 
 ## ADB
 
-USB ADB is still broken on this kernel (legacy `f_adb`). Use ADB over
-WiFi: enable “ADB over network” in Developer options, then
+USB ADB and MTP now work through functionfs (`0fce:5192`, `mtp,adb`).
+ADB over WiFi also works: enable “ADB over network” in Developer options,
+then
 
 ```bash
 adb connect <phone-ip>:5555
