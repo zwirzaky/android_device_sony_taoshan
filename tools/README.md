@@ -5,8 +5,9 @@ LineageOS 16.0 (Android 9).
 
 - Device tree: `zwirzaky/android_device_sony_taoshan`, branch
   `lineage-16.0-bringup`
-- Kernel: TeamButter `android_kernel_sony_msm8930`, branch `oreo` (3.4)
-- Vendor blobs: TeamButter `proprietary_vendor_sony`, `lineage-15.1`
+- Kernel: `zwirzaky/android_kernel_sony_msm8930`, branch
+  `lineage-16.0-bringup` (3.4, based on the working `oreo` base)
+- Vendor blobs: `zwirzaky/proprietary_vendor_sony`, `lineage-16.0`
 - Shared: LineageOS `device/sony/common` `lineage-16.0`,
   `device/qcom/common` `lineage-15.1`
 

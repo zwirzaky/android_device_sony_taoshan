@@ -17,13 +17,13 @@
            path="device/qcom/common"
            remote="LineageOS" revision="lineage-15.1" />
 
-  <!-- Working Oreo kernel, forward-ported only where needed -->
+  <!-- Working kernel base, with a README/TODO for the 16.0 bring-up -->
   <project name="android_kernel_sony_msm8930"
            path="kernel/sony/msm8930"
-           remote="TeamButter" revision="oreo" />
+           remote="zwirzaky" revision="lineage-16.0-bringup" />
 
-  <!-- Sony blobs used by the working 15.1 build -->
+  <!-- Sony blobs, identical to the working 15.1 set -->
   <project name="proprietary_vendor_sony"
            path="vendor/sony"
-           remote="TeamButter" revision="lineage-15.1" />
+           remote="zwirzaky" revision="lineage-16.0" />
 </manifest>

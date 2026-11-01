@@ -33,8 +33,9 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 - LineageOS 16.0 upstream
 - `device/sony/common` — LineageOS `lineage-16.0`
 - `device/qcom/common` — LineageOS `lineage-15.1` + poprawki power HAL
-- `kernel/sony/msm8930` — TeamButter `oreo` (3.4)
-- `vendor/sony` — TeamButter `lineage-15.1`
+- `kernel/sony/msm8930` — `zwirzaky/android_kernel_sony_msm8930`,
+  `lineage-16.0-bringup` (3.4, working `oreo` base)
+- `vendor/sony` — `zwirzaky/proprietary_vendor_sony`, `lineage-16.0`
 - `device/sony/taoshan` — ten port, gałąź `lineage-16.0-bringup`
   (zawiera też `tools/` z manifestem, patchami i skryptami builda)
 
