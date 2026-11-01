@@ -1,0 +1,2 @@
+# Legacy USB
+TARGET_USES_LEGACY_ADB_INTERFACE := true

@@ -1,0 +1,4 @@
+# System Server user.language property.
+set_prop(system_server, ctl_default_prop)
+
+allow system_server system_file:file execmod;

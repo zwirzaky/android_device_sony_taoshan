@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="TeamButter" fetch="https://github.com/TeamButter/" />
+  <remote name="LineageOS" fetch="https://github.com/LineageOS/" />
+  <remote name="zwirzaky" fetch="https://github.com/zwirzaky/" />
+
+  <!-- This device tree (also contains tools/ and patches/) -->
+  <project name="android_device_sony_taoshan"
+           path="device/sony/taoshan"
+           remote="zwirzaky" revision="lineage-16.0-bringup" />
+
+  <project name="android_device_sony_common"
+           path="device/sony/common"
+           remote="LineageOS" revision="lineage-16.0" />
+
+  <project name="android_device_qcom_common"
+           path="device/qcom/common"
+           remote="LineageOS" revision="lineage-15.1" />
+
+  <!-- Working Oreo kernel, forward-ported only where needed -->
+  <project name="android_kernel_sony_msm8930"
+           path="kernel/sony/msm8930"
+           remote="TeamButter" revision="oreo" />
+
+  <!-- Sony blobs used by the working 15.1 build -->
+  <project name="proprietary_vendor_sony"
+           path="vendor/sony"
+           remote="TeamButter" revision="lineage-15.1" />
+</manifest>
