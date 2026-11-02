@@ -1,0 +1,2 @@
+# RenderThread reads the KGSL clock node for GPU frequency reporting.
+allow platform_app sysfs:file r_file_perms;

@@ -1,0 +1,2 @@
+# healthd reads battery/charging attributes under sysfs on msm8960.
+allow healthd sysfs:file r_file_perms;

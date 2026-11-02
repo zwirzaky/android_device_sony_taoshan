@@ -1,0 +1,4 @@
+# NFC HAL reads platform sysfs attributes on this device.
+allow nfc sysfs:file r_file_perms;
+allow nfc firmware_file:lnk_file read;
+allow nfc firmware_file:file r_file_perms;

@@ -1,0 +1,2 @@
+# The legacy msm8960 lights HAL controls LCD/keyboard backlight via sysfs.
+allow hal_light_default sysfs:file rw_file_perms;

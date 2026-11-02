@@ -1,0 +1,2 @@
+# Camera metadata is exposed through camera_prop to media codec clients.
+allow mediacodec camera_prop:file r_file_perms;
