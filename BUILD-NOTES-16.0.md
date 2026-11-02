@@ -22,8 +22,8 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 out/target/product/taoshan/lineage-16.0-20261102-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 441 005 248 B (~421 MiB)
-- MD5: `aea1114389a45dda29534c41f5a154ee`
+- rozmiar: 441 004 784 B (~421 MiB)
+- MD5: `007e2f48ad1e31633c79da7320ef635e`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
 - `androidboot.selinux=enforcing`
@@ -108,7 +108,8 @@ out/target/product/taoshan/lineage-16.0-20261102-UNOFFICIAL-taoshan.zip
       pipe'ów init, plików WiFi/BT i `sysfs_wlan_fwpath`,
     - trigger `init.svc.wificond=running` i `sys.boot_completed=1` poprawia
       właściciela `/sys/module/wlan/parameters/fwpath` (WiFi startuje sama),
-    - `qcom-post-boot` działa w `qti_init_shell` (CPU/sysfs/thermal),
+    - `qcom-post-boot` działa w `qti_init_shell` (CPU/sysfs/thermal);
+      build32: `ondemand`, max 1026 MHz, min 384 MHz, `optimal_freq=810000`,
     - `mediaserver` może znaleźć HIDL `ICameraMotor`.
 19. Fingerprint: `BUILD_FINGERPRINT` ustawiony globalnie na stock Sony, więc
     `ro.build.fingerprint` == `ro.vendor.build.fingerprint`. Usuwa to po
@@ -119,7 +120,7 @@ out/target/product/taoshan/lineage-16.0-20261102-UNOFFICIAL-taoshan.zip
 
 - governor `ondemand`, min 384 MHz, max 1026 MHz (cap zamiast 1188 MHz),
   `io_is_busy=0`, `sampling_down_factor=1`, `optimal_freq=810000` — polityka
-  CPU jest ustawiona.
+  CPU jest ustawiona. **Build32 potwierdzone na urządzeniu** (`cpu0/cpu1`).
 - **Deep sleep (build19):** po zgaszeniu ekranu pojawia się prawdziwy
   `PM: suspend entry` / `PM: suspend exit`; nie ma już pętli
   `request_suspend_state: sleep (3->3)`. `mWakefulness=Asleep`,
