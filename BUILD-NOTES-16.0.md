@@ -20,8 +20,8 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 441 005 355 B (~421 MiB)
-- MD5: `3fc5d9d8cf561aab16eb762683ed5e39`
+- rozmiar: 440 997 239 B (~421 MiB)
+- MD5: `5100298a7fca42db2c94cf7536382d28`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
 
@@ -85,6 +85,12 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
     Legacy klient kamery przekazuje 32-bitowy usage ze znakiem; przy
     rozszerzeniu do `uint64_t` powstawało `0xffff00000000`, które
     `Gralloc2` odrzucał i preview nie mógł zaalokować bufora 640x480.
+16. Display/HWC: `display-caf/msm8960` nie wywołuje `FBIOBLANK` dla primary
+    w `hwc_setPowerMode`. Na tym kernelu `FB_BLANK_UNBLANK` przy wake wisi
+    w `qdhwcomposer`/MDP4 DSI, SurfaceFlinger blokuje `createSurface`,
+    a system_server trzyma `WindowHashMap` i ginie od Watchdoga.
+    Backlight jest wyłączany przez LightsService. Build18: dwa cykle
+    screen off→wake bez restartu system_server.
 
 ## CPU / stany zasilania
 
@@ -113,12 +119,13 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
   blokuje kamer.
 - **Bateria:** brak deep sleep; telefon na ekranie off nadal pracuje na
   wysokim CPU, więc bateria będzie drenowana (problem odziedziczony z 15.1).
-- **System_server Watchdog:** po screen off/wake `WindowManagerService`
-  blokuje `WindowHashMap`; `android.fg` i `android.display` czekają na lock,
-  Watchdog zabija system_server, launcher dostaje `DeadSystemException`,
-  a ekran zostaje czarny. To nie crash launchera. Trzeba zebrać trace
-  `/data/anr` i poprawić deadlock WMS/SurfaceFlinger; tymczasowo testowane
-  wyłączenie animacji (`window_animation_scale=0`).
+- **System_server Watchdog (obejście):** po screen off/wake
+  `WindowManagerService` blokuje `WindowHashMap`; `android.fg` i
+  `android.display` czekają na lock, Watchdog zabija system_server, launcher
+  dostaje `DeadSystemException`, a ekran zostaje czarny. W build18 HWC nie
+  wywołuje `FBIOBLANK` dla primary, więc wake nie blokuje `SurfaceFlinger`;
+  dwa cykle przeszły. Koszt: panel nie jest framebuffer-blankowany, tylko
+  backlight; do usunięcia po naprawie `FBIOBLANK`/MDP4 w kernelu.
 - 1 GB RAM / 8 GB storage — ROM jest ciężki.
 
 ## Flashowanie

@@ -1,0 +1,21 @@
+diff --git a/libhwcomposer/hwc.cpp b/libhwcomposer/hwc.cpp
+index b6b31d69e..291bdc808 100644
+--- a/libhwcomposer/hwc.cpp
++++ b/libhwcomposer/hwc.cpp
+@@ -401,11 +401,11 @@ static int hwc_setPowerMode(struct hwc_composer_device_1* dev, int dpy,
+             }
+         }
+ 
+-        if(ioctl(ctx->dpyAttr[dpy].fd, FBIOBLANK, value) < 0 ) {
+-            ALOGE("%s: ioctl FBIOBLANK failed for Primary with error %s"
+-                    " value %d", __FUNCTION__, strerror(errno), value);
+-            return -errno;
+-        }
++        // FBIOBLANK(FB_BLANK_UNBLANK) can block forever on this kernel when
++        // waking the MDP4 DSI command panel.  LightsService turns the panel
++        // backlight off/on separately, so keep the framebuffer unblanked and
++        // only update the HWC display state here.
++        (void)value;
+ 
+         if(mode == HWC_POWER_MODE_NORMAL) {
+             // Enable HPD here, as during bootup POWER_MODE_NORMAL is set

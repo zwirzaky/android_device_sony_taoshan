@@ -15,6 +15,8 @@ LineageOS 16.0 (Android 9).
   `device/qcom/common` `lineage-15.1`
 - `frameworks/native`: local patch `0004-frameworks-native-legacy-gralloc-usage.patch`
   (32-bit camera usage mask for the msm8960 gralloc)
+- `hardware/qcom/display-caf/msm8960`: local patch
+  `0005-hwc-skip-primary-fb-blank.patch` (avoid FBIOBLANK wake hang)
 
 ## Status
 
@@ -23,6 +25,7 @@ LineageOS 16.0 (Android 9).
 - Bluetooth works,
 - ADB over WiFi works,
 - sleep/wake works after the sensor/linker fixes,
+- screen off→wake is stable with the HWC FBIOBLANK workaround,
 - both cameras work (rear and front),
 - RIL still needs a SIM and testing,
 - USB ADB/MTP work through functionfs (`0fce:5192`, `mtp,adb`).
