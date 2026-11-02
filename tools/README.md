@@ -13,6 +13,8 @@ LineageOS 16.0 (Android 9).
   (branch `lineage-16.0-bringup`)
 - Shared: LineageOS `device/sony/common` `lineage-16.0`,
   `device/qcom/common` `lineage-15.1`
+- `frameworks/native`: local patch `0004-frameworks-native-legacy-gralloc-usage.patch`
+  (32-bit camera usage mask for the msm8960 gralloc)
 
 ## Status
 
@@ -21,8 +23,9 @@ LineageOS 16.0 (Android 9).
 - Bluetooth works,
 - ADB over WiFi works,
 - sleep/wake works after the sensor/linker fixes,
-- camera and RIL are not finished,
-- USB ADB/MTP still uses the old kernel `f_adb` and needs a functionfs port.
+- both cameras work (rear and front),
+- RIL still needs a SIM and testing,
+- USB ADB/MTP work through functionfs (`0fce:5192`, `mtp,adb`).
 
 See `BUILD-NOTES-16.0.md` for the full change list and known issues.
 
@@ -41,8 +44,8 @@ repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
 # WebView APKs are Git LFS pointers
 device/sony/taoshan/tools/fetch-lfs.sh
 
-# Optional: patches are already in the zwirzaky forks below.
-# Run only if you switch bionic/qcom/common/ril-caf back to upstream.
+# Apply the local compatibility patches (bionic, qcom/common, ril-caf,
+# frameworks/native gralloc legacy usage).
 device/sony/taoshan/tools/apply-patches.sh
 
 # Build

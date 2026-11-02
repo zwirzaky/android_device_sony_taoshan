@@ -1,0 +1,17 @@
+diff --git a/libs/ui/GraphicBufferAllocator.cpp b/libs/ui/GraphicBufferAllocator.cpp
+index eaba1ed1a..56907c771 100644
+--- a/libs/ui/GraphicBufferAllocator.cpp
++++ b/libs/ui/GraphicBufferAllocator.cpp
+@@ -113,7 +113,11 @@ status_t GraphicBufferAllocator::allocate(uint32_t width, uint32_t height,
+     info.height = height;
+     info.layerCount = layerCount;
+     info.format = static_cast<Gralloc2::PixelFormat>(format);
+-    info.usage = usage;
++    // Legacy 32-bit camera/SurfaceTexture clients pass usage as a signed int.
++    // Widening that to uint64_t sign-extends the private usage bits, which the
++    // gralloc2 mapper rejects (0xffff00000000). Keep the low 32 bits, which is
++    // all this msm8960 gralloc understands.
++    info.usage = usage & 0xffffffffULL;
+ 
+     Gralloc2::Error error = mAllocator->allocate(info, stride, handle);
+     if (error == Gralloc2::Error::NONE) {

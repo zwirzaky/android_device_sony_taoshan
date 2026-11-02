@@ -23,3 +23,4 @@ apply_patch() {
 apply_patch device/qcom/common "$TOOLS/patches/0001-qcom-common-power-android9.patch"
 apply_patch bionic "$TOOLS/patches/0002-bionic-legacy-text-relocations.patch"
 apply_patch hardware/ril-caf "$TOOLS/patches/0003-ril-caf-rild-mmap.patch"
+apply_patch frameworks/native "$TOOLS/patches/0004-frameworks-native-legacy-gralloc-usage.patch"

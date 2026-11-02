@@ -9,7 +9,8 @@ Port jest **bootowalny i testowany na telefonie**:
 - **Bluetooth działa** (`state: ON`, MAC `1C:7B:21:A2:6A:7C`),
 - **ADB po WiFi działa** (`adb connect <IP>:5555`),
 - **sleep/wake działa** po poprawkach sensorów i linkera,
-- **USB ADB i MTP działają** (functionfs + alias `adb`).
+- **USB ADB i MTP działają** (functionfs + alias `adb`),
+- **obie kamery działają** (przednia i tylna, Camera2/Snap).
 
 Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 
@@ -19,8 +20,8 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 441 000 177 B (~421 MiB)
-- MD5: `aafdb6525b55bcb365a4a2e0fb41ca5b`
+- rozmiar: 441 005 355 B (~421 MiB)
+- MD5: `3fc5d9d8cf561aab16eb762683ed5e39`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
 
@@ -80,14 +81,18 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
     W tym legacy porcie `CameraService` działa w `mediaserver` (UID 1013),
     a domyślna wartość `false` powodowała odrzucenie `pingForUserUpdate()`
     i puste `mAllowedUsers` — kamera odrzucała każdą aplikację.
+15. Camera/gralloc: `GraphicBufferAllocator` maskuje `usage` do 32 bitów.
+    Legacy klient kamery przekazuje 32-bitowy usage ze znakiem; przy
+    rozszerzeniu do `uint64_t` powstawało `0xffff00000000`, które
+    `Gralloc2` odrzucał i preview nie mógł zaalokować bufora 640x480.
 
 ## Znane problemy
 
 - `avc: denied { ioctl }` dla `hci_qcomm_init` na `/dev/smd3` — nie blokuje
   działania BT, ale można dodać allow w sepolicy.
-- Camera: w build14 dodana etykieta SELinux dla `mm-qcamera-daemon` i dostęp
-  do `sysfs`; wymaga testu po wgraniu.
 - RIL wymaga SIM i testu.
+- Brak HIDL `vendor.lineage.camera.motor` — tylko log ostrzeżenia, nie
+  blokuje kamer.
 - 1 GB RAM / 8 GB storage — ROM jest ciężki.
 
 ## Flashowanie
