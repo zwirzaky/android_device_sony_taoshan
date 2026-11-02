@@ -6,6 +6,7 @@ Port jest **bootowalny i testowany na telefonie**:
 
 - system wstaje do UI,
 - **WiFi działa** (połączenie z siecią, IP przez DHCP),
+- **WiFi hotspot działa** (`hostapd` HIDL, `wlan0` AP `192.168.43.x`),
 - **Bluetooth działa** (`state: ON`, MAC `1C:7B:21:A2:6A:7C`),
 - **ADB po WiFi działa** (`adb connect <IP>:5555`),
 - **sleep/wake działa** po poprawkach sensorów i linkera,
@@ -20,8 +21,8 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 441 003 067 B (~421 MiB)
-- MD5: `7d94eec772a8043b8484f0c91ce2723d`
+- rozmiar: 441 001 384 B (~421 MiB)
+- MD5: `5b43d603f7def484327c3c4be66e53ee`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
 
@@ -92,6 +93,12 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
     `WindowHashMap` i ginął od Watchdoga. Bez earlysuspend display korzysta
     z normalnego PM suspend/resume. Build19: `PM: suspend entry/exit`,
     screen off→wake stabilne, ten sam system_server.
+17. WiFi hotspot: usunięty stary service `hostapd /system/bin/hostapd` z
+    `init.qcom.rc`. W Android 9 hostapd jest HIDL w
+    `/vendor/bin/hw/hostapd`; legacy wpis go przesłaniał, a wificond dostawał
+    `Cannot find '/system/bin/hostapd'`. Build20: `hostapd` startuje jako
+    `hal_wifi_hostapd_default`, `wlan0` AP `192.168.43.246/24`,
+    `hostapd: AP-ENABLED`.
 
 ## CPU / stany zasilania
 

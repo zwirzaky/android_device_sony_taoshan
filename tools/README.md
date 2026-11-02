@@ -22,6 +22,7 @@ LineageOS 16.0 (Android 9).
 
 - boots to UI,
 - WiFi works,
+- WiFi hotspot works (HIDL hostapd),
 - Bluetooth works,
 - ADB over WiFi works,
 - sleep/wake works after the sensor/linker fixes,
