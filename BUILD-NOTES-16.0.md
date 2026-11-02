@@ -86,6 +86,24 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
     rozszerzeniu do `uint64_t` powstawało `0xffff00000000`, które
     `Gralloc2` odrzucał i preview nie mógł zaalokować bufora 640x480.
 
+## CPU / stany zasilania
+
+- governor `ondemand`, min 384 MHz, max 1026 MHz (cap zamiast 1188 MHz),
+  `io_is_busy=0`, `sampling_down_factor=1`, `optimal_freq=810000` — polityka
+  CPU jest ustawiona.
+- **Deep sleep nadal nie wchodzi.** Po zgaszeniu ekranu:
+  - `mWakefulness=Asleep`, `Display Power: state=OFF`,
+  - ale `request_suspend_state: sleep (3->3)` leci co ~100 ms,
+  - brak `PM: suspend entry/exit` i CPU pozostaje aktywne,
+  - `time_in_state` zdominowany przez 1026 MHz.
+- Wcześniej blokował to `DOZE_WAKE_LOCK` (`DreamManagerService`) oraz
+  `GnssLocationProvider`; po wyłączeniu screensavera/doze wakelocki zniknęły,
+  ale pętla suspend została. To wygląda na legacy `CONFIG_EARLYSUSPEND`
+  w kernelu 3.4 (zamiast `pm_suspend`); 15.1 miało ten sam problem.
+- Kandydat na poprawkę: wyłączyć `CONFIG_EARLYSUSPEND` albo podłączyć
+  `early_suspend` do `pm_suspend`; ewentualnie obniżyć cap do 810/918 MHz
+  jako tymczasowe ograniczenie grzania.
+
 ## Znane problemy
 
 - `avc: denied { ioctl }` dla `hci_qcomm_init` na `/dev/smd3` — nie blokuje
@@ -93,6 +111,8 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 - RIL wymaga SIM i testu.
 - Brak HIDL `vendor.lineage.camera.motor` — tylko log ostrzeżenia, nie
   blokuje kamer.
+- **Bateria:** brak deep sleep; telefon na ekranie off nadal pracuje na
+  wysokim CPU, więc bateria będzie drenowana (problem odziedziczony z 15.1).
 - 1 GB RAM / 8 GB storage — ROM jest ciężki.
 
 ## Flashowanie
