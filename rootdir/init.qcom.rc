@@ -349,12 +349,10 @@ on property:drmdiag.load=1
 on property:drmdiag.load=0
     stop drmdiag
 
-service hostapd /system/bin/hostapd /data/hostapd/hostapd.conf
-    class late_start
-    user root
-    group root
-    oneshot
-    disabled
+# hostapd is provided by the HIDL service in /vendor/etc/init/hostapd.android.rc
+# (/vendor/bin/hw/hostapd).  The removed legacy /system/bin/hostapd service
+# definition shadowed it and made softAP fail with
+# "Cannot find '/system/bin/hostapd'".
 
 on property:ro.data.large_tcp_window_size=true
     # Adjust socket buffer to enlarge TCP receive window for high bandwidth (e.g. DO-RevB)
