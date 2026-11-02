@@ -113,6 +113,12 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
   blokuje kamer.
 - **Bateria:** brak deep sleep; telefon na ekranie off nadal pracuje na
   wysokim CPU, więc bateria będzie drenowana (problem odziedziczony z 15.1).
+- **System_server Watchdog:** po screen off/wake `WindowManagerService`
+  blokuje `WindowHashMap`; `android.fg` i `android.display` czekają na lock,
+  Watchdog zabija system_server, launcher dostaje `DeadSystemException`,
+  a ekran zostaje czarny. To nie crash launchera. Trzeba zebrać trace
+  `/data/anr` i poprawić deadlock WMS/SurfaceFlinger; tymczasowo testowane
+  wyłączenie animacji (`window_animation_scale=0`).
 - 1 GB RAM / 8 GB storage — ROM jest ciężki.
 
 ## Flashowanie
