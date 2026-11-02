@@ -20,8 +20,8 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 440 997 239 B (~421 MiB)
-- MD5: `5100298a7fca42db2c94cf7536382d28`
+- rozmiar: 441 003 067 B (~421 MiB)
+- MD5: `7d94eec772a8043b8484f0c91ce2723d`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
 
@@ -85,30 +85,26 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
     Legacy klient kamery przekazuje 32-bitowy usage ze znakiem; przy
     rozszerzeniu do `uint64_t` powstawało `0xffff00000000`, które
     `Gralloc2` odrzucał i preview nie mógł zaalokować bufora 640x480.
-16. Display/HWC: `display-caf/msm8960` nie wywołuje `FBIOBLANK` dla primary
-    w `hwc_setPowerMode`. Na tym kernelu `FB_BLANK_UNBLANK` przy wake wisi
-    w `qdhwcomposer`/MDP4 DSI, SurfaceFlinger blokuje `createSurface`,
-    a system_server trzyma `WindowHashMap` i ginie od Watchdoga.
-    Backlight jest wyłączany przez LightsService. Build18: dwa cykle
-    screen off→wake bez restartu system_server.
+16. Kernel/PM: `CONFIG_EARLYSUSPEND=n` (tak jak huashan). Legacy
+    earlysuspend ustawiał `mfd->suspend.op_suspend=true`, ale Android 9 nie
+    wołał `early_resume`, więc `FBIOBLANK(FB_BLANK_UNBLANK)` czekał w pętli
+    `msleep`; SurfaceFlinger blokował `createSurface`, system_server trzymał
+    `WindowHashMap` i ginął od Watchdoga. Bez earlysuspend display korzysta
+    z normalnego PM suspend/resume. Build19: `PM: suspend entry/exit`,
+    screen off→wake stabilne, ten sam system_server.
 
 ## CPU / stany zasilania
 
 - governor `ondemand`, min 384 MHz, max 1026 MHz (cap zamiast 1188 MHz),
   `io_is_busy=0`, `sampling_down_factor=1`, `optimal_freq=810000` — polityka
   CPU jest ustawiona.
-- **Deep sleep nadal nie wchodzi.** Po zgaszeniu ekranu:
-  - `mWakefulness=Asleep`, `Display Power: state=OFF`,
-  - ale `request_suspend_state: sleep (3->3)` leci co ~100 ms,
-  - brak `PM: suspend entry/exit` i CPU pozostaje aktywne,
-  - `time_in_state` zdominowany przez 1026 MHz.
-- Wcześniej blokował to `DOZE_WAKE_LOCK` (`DreamManagerService`) oraz
-  `GnssLocationProvider`; po wyłączeniu screensavera/doze wakelocki zniknęły,
-  ale pętla suspend została. To wygląda na legacy `CONFIG_EARLYSUSPEND`
-  w kernelu 3.4 (zamiast `pm_suspend`); 15.1 miało ten sam problem.
-- Kandydat na poprawkę: wyłączyć `CONFIG_EARLYSUSPEND` albo podłączyć
-  `early_suspend` do `pm_suspend`; ewentualnie obniżyć cap do 810/918 MHz
-  jako tymczasowe ograniczenie grzania.
+- **Deep sleep (build19):** po zgaszeniu ekranu pojawia się prawdziwy
+  `PM: suspend entry` / `PM: suspend exit`; nie ma już pętli
+  `request_suspend_state: sleep (3->3)`. `mWakefulness=Asleep`,
+  `Display Power: state=OFF`, a `hwc_setPowerMode: mode 2` kończy się
+  `Done`. System_server pozostaje ten sam po wake.
+- W logu nadal widać częste wakeupy na timery; trzeba zmierzyć realny
+  drain w idle. Opcjonalnie można później obniżyć cap do 810/918 MHz.
 
 ## Znane problemy
 
@@ -117,15 +113,11 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
 - RIL wymaga SIM i testu.
 - Brak HIDL `vendor.lineage.camera.motor` — tylko log ostrzeżenia, nie
   blokuje kamer.
-- **Bateria:** brak deep sleep; telefon na ekranie off nadal pracuje na
-  wysokim CPU, więc bateria będzie drenowana (problem odziedziczony z 15.1).
-- **System_server Watchdog (obejście):** po screen off/wake
-  `WindowManagerService` blokuje `WindowHashMap`; `android.fg` i
-  `android.display` czekają na lock, Watchdog zabija system_server, launcher
-  dostaje `DeadSystemException`, a ekran zostaje czarny. W build18 HWC nie
-  wywołuje `FBIOBLANK` dla primary, więc wake nie blokuje `SurfaceFlinger`;
-  dwa cykle przeszły. Koszt: panel nie jest framebuffer-blankowany, tylko
-  backlight; do usunięcia po naprawie `FBIOBLANK`/MDP4 w kernelu.
+- **Bateria:** build19 wchodzi w prawdziwy `PM: suspend` (nie tylko
+  early-suspend), więc deep sleep jest możliwy. W logu widać częste
+  wakeupy na timery; zużycie w idle trzeba jeszcze zmierzyć.
+- **System_server Watchdog:** naprawiony w build19 przez
+  `CONFIG_EARLYSUSPEND=n`; wcześniejszy HWC workaround został cofnięty.
 - 1 GB RAM / 8 GB storage — ROM jest ciężki.
 
 ## Flashowanie

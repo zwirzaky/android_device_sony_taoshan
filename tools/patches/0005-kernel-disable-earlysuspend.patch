@@ -1,0 +1,11 @@
+diff --git a/arch/arm/configs/taoshan_defconfig b/arch/arm/configs/taoshan_defconfig
+index 177893d7275..1fd98831e6a 100644
+--- a/arch/arm/configs/taoshan_defconfig
++++ b/arch/arm/configs/taoshan_defconfig
+@@ -712,3 +712,6 @@ CONFIG_TASK_DELAY_ACCT=y
+ CONFIG_TASK_XACCT=y
+ CONFIG_TASK_IO_ACCOUNTING=y
+ 
++
++# Disable legacy earlysuspend; Android 9/libsuspend uses pm_suspend/resume.
++# CONFIG_EARLYSUSPEND is not set

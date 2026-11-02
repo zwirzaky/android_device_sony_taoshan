@@ -24,4 +24,4 @@ apply_patch device/qcom/common "$TOOLS/patches/0001-qcom-common-power-android9.p
 apply_patch bionic "$TOOLS/patches/0002-bionic-legacy-text-relocations.patch"
 apply_patch hardware/ril-caf "$TOOLS/patches/0003-ril-caf-rild-mmap.patch"
 apply_patch frameworks/native "$TOOLS/patches/0004-frameworks-native-legacy-gralloc-usage.patch"
-apply_patch hardware/qcom/display-caf/msm8960 "$TOOLS/patches/0005-hwc-skip-primary-fb-blank.patch"
+apply_patch kernel/sony/msm8930 "$TOOLS/patches/0005-kernel-disable-earlysuspend.patch"
