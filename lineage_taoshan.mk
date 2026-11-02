@@ -35,7 +35,9 @@ PRODUCT_MODEL := Xperia L
 # Init a dummy BT MAC address, will be overwritten later
 BOARD_BT_MAC_ADDR := "00:00:00:00:00:00"
 
-# Build fingerprints
+# Build fingerprints.  Keep the stock Sony fingerprint for blob compatibility,
+# but apply it globally so ro.vendor.build.fingerprint matches ro.build.fingerprint.
+BUILD_FINGERPRINT := Sony/C2105/C2105:4.2.2/15.3.A.1.17/Android.1016:user/release-keys
 PRODUCT_BUILD_PROP_OVERRIDES += \
     PRODUCT_NAME=C2105 \
     BUILD_FINGERPRINT="Sony/C2105/C2105:4.2.2/15.3.A.1.17/Android.1016:user/release-keys" \

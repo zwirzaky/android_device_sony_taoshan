@@ -1,0 +1,19 @@
+# Vendor init shell helpers (btmac.sh, init.qcom.bt.sh) execute toolbox
+# commands such as cat/getprop/setprop outside qti_init_shell.  Allow the
+# legacy Bluetooth address file and status property to be handled.
+allow toolbox bluetooth_prop:file rw_file_perms;
+allow toolbox bluetooth_prop:property_service set;
+allow toolbox property_socket:sock_file write;
+allow toolbox init:unix_stream_socket { connectto write };
+allow toolbox init:fifo_file rw_file_perms;
+allow toolbox system_data_file:dir r_dir_perms;
+allow toolbox system_data_file:file r_file_perms;
+allow toolbox bluetooth_data_file:dir rw_dir_perms;
+allow toolbox bluetooth_data_file:file { rw_file_perms setattr };
+allow toolbox wifi_data_file:dir create_dir_perms;
+allow toolbox wifi_data_file:file create_file_perms;
+allow toolbox sysfs:file r_file_perms;
+allow toolbox sysfs_devices_system_cpu:file { getattr setattr open write };
+
+# btmac.sh runs cat/chown/chmod as toolbox children of init.
+allow toolbox self:capability { chown fowner fsetid dac_override dac_read_search };

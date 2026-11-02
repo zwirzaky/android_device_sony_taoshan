@@ -1,0 +1,28 @@
+diff --git a/services/core/java/com/android/server/location/GnssGeofenceProvider.java b/services/core/java/com/android/server/location/GnssGeofenceProvider.java
+index 6ac4aeb7f9e..e45422eeebd 100644
+--- a/services/core/java/com/android/server/location/GnssGeofenceProvider.java
++++ b/services/core/java/com/android/server/location/GnssGeofenceProvider.java
+@@ -12,6 +12,8 @@ import com.android.internal.annotations.VisibleForTesting;
+ import java.util.concurrent.Callable;
+ import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.FutureTask;
++import java.util.concurrent.TimeUnit;
++import java.util.concurrent.TimeoutException;
+ 
+ /**
+  * Manages GNSS Geofence operations.
+@@ -72,9 +74,12 @@ class GnssGeofenceProvider extends IGpsGeofenceHardware.Stub {
+         FutureTask<Boolean> futureTask = new FutureTask<>(callable);
+         mHandler.post(futureTask);
+         try {
+-            return futureTask.get();
+-        } catch (InterruptedException | ExecutionException e) {
++            // The legacy GNSS HAL can leave the geofence handler blocked forever.
++            // Never let that block system_server's main thread until Watchdog.
++            return futureTask.get(5, TimeUnit.SECONDS);
++        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+             Log.e(TAG, "Failed running callable.", e);
++            futureTask.cancel(true);
+         }
+         return false;
+     }

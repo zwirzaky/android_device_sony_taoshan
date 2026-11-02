@@ -1,4 +1,7 @@
 allow qti_init_shell sysfs_devices_system_cpu:file setattr;
+allow qti_init_shell sysfs:file write;
+allow qti_init_shell sysfs_thermal:file write;
+allow qti_init_shell shell_exec:file entrypoint;
 set_prop(qti_init_shell, ctl_default_prop)
 set_prop(qti_init_shell, ctl_location_mq_prop)
 set_prop(qti_init_shell, ctl_lowi-server_prop)

@@ -8,6 +8,7 @@ Port jest **bootowalny i testowany na telefonie**:
 - **WiFi działa** (połączenie z siecią, IP przez DHCP),
 - **WiFi hotspot działa** (`hostapd` HIDL, `wlan0` AP `192.168.43.x`),
 - **Bluetooth działa** (`state: ON`, MAC `1C:7B:21:A2:6A:7C`),
+- **SELinux enforcing działa stabilnie** (brak Watchdog/ANR `system_server`),
 - **ADB po WiFi działa** (`adb connect <IP>:5555`),
 - **sleep/wake działa** po poprawkach sensorów i linkera,
 - **USB ADB i MTP działają** (functionfs + alias `adb`),
@@ -18,13 +19,14 @@ Gałąź: `zwirzaky/android_device_sony_taoshan`, `lineage-16.0-bringup`.
 ## Artefakt
 
 ```
-out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
+out/target/product/taoshan/lineage-16.0-20261102-UNOFFICIAL-taoshan.zip
 ```
 
-- rozmiar: 441 001 384 B (~421 MiB)
-- MD5: `5b43d603f7def484327c3c4be66e53ee`
+- rozmiar: 441 005 248 B (~421 MiB)
+- MD5: `aea1114389a45dda29534c41f5a154ee`
 - Android 9 (SDK 28), `userdebug`
 - podpisany test-keyami AOSP
+- `androidboot.selinux=enforcing`
 
 ## Drzewo
 
@@ -99,6 +101,19 @@ out/target/product/taoshan/lineage-16.0-20261101-UNOFFICIAL-taoshan.zip
     `Cannot find '/system/bin/hostapd'`. Build20: `hostapd` startuje jako
     `hal_wifi_hostapd_default`, `wlan0` AP `192.168.43.246/24`,
     `hostapd: AP-ENABLED`.
+18. SELinux enforcing (build30):
+    - `btmac.sh` uruchamiany synchronicznie z init, a `bdaddr` dostaje
+      `bluetooth:bluetooth 0644` (wcześniej `root:root 0600`),
+    - `toolbox` dostaje dostęp do `bluetooth_prop`/`property_service`,
+      pipe'ów init, plików WiFi/BT i `sysfs_wlan_fwpath`,
+    - trigger `init.svc.wificond=running` i `sys.boot_completed=1` poprawia
+      właściciela `/sys/module/wlan/parameters/fwpath` (WiFi startuje sama),
+    - `qcom-post-boot` działa w `qti_init_shell` (CPU/sysfs/thermal),
+    - `mediaserver` może znaleźć HIDL `ICameraMotor`.
+19. Fingerprint: `BUILD_FINGERPRINT` ustawiony globalnie na stock Sony, więc
+    `ro.build.fingerprint` == `ro.vendor.build.fingerprint`. Usuwa to po
+    bootcie dialog „There's an internal problem with your device…”.
+    Build30/31: dialog nie występuje, bez wipe danych.
 
 ## CPU / stany zasilania
 

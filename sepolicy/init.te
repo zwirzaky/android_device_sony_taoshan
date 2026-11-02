@@ -3,6 +3,9 @@ allow init wcnss_device:chr_file write;
 
 # Vendor init scripts are executed as /system/bin/sh from init.
 allow init shell_exec:file { execute execute_no_trans open read getattr };
-# tad_static lives in the boot ramdisk.
+# tad_static lives in the boot ramdisk and writes the TA partition.
 allow init rootfs:file execute_no_trans;
+allow init ta_block_device:blk_file rw_file_perms;
+# The wlan fwpath sysfs node appears after on boot; init fixes its owner.
+allow init sysfs_wlan_fwpath:file { getattr setattr open write };
 
