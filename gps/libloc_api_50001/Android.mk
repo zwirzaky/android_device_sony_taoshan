@@ -59,6 +59,7 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_SHARED_LIBRARIES := \
     libutils \
     libcutils \
+    libprocessgroup \
     libloc_adapter \
     libgps.utils \
     libdl \

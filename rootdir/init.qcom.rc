@@ -294,7 +294,7 @@ on property:ro.boot.emmc=true
 service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
     class late_start
     user bluetooth
-    group qcom_oncrpc bluetooth
+    group bluetooth
     disabled
     oneshot
 
@@ -478,3 +478,16 @@ service wificonf /system/bin/sh /system/etc/wificonf.sh
     group root
     oneshot
     disabled
+
+# Taoshan 17.1: these services are defined by late imports, so make sure they
+# are started after all init scripts have been parsed.
+on boot
+    start installd
+    start zygote
+    start keystore
+    start netd
+
+
+# Kernel 3.4 has no eBPF; netd otherwise waits forever for bpf.progs_loaded.
+on init
+    setprop bpf.progs_loaded 1

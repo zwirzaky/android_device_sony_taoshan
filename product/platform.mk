@@ -6,7 +6,7 @@ PRODUCT_COPY_FILES += \
 
 # TWRP configurations
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/rootdir/twrp.fstab:recovery/root/etc/twrp.fstab
+    $(LOCAL_PATH)/rootdir/twrp.fstab:recovery/root/system/etc/twrp.fstab
 
 # Sony TrimArea package
 PRODUCT_COPY_FILES += \

@@ -42,3 +42,13 @@ include $(LOCAL_PATH)/product/*.mk
 
 # Vendor product configurations
 $(call inherit-product, vendor/sony/taoshan/taoshan-vendor.mk)
+
+# Old 3.4 kernel / ART 10: JIT crashes in Jit thread pool on taoshan.
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
+    dalvik.vm.usejit=false \
+    dalvik.vm.usejitprofiles=false
+
+# Override any dalvik defaults from base product makefiles.
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.usejit=false \
+    dalvik.vm.usejitprofiles=false

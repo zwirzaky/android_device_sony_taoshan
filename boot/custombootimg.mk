@@ -5,8 +5,8 @@ DEVICE_LOGORLE := $(DEVICE_BOOTDIR)/logo.rle
 INITSONY := $(PRODUCT_OUT)/utilities/init_sony
 
 uncompressed_ramdisk := $(PRODUCT_OUT)/ramdisk.cpio
-$(uncompressed_ramdisk): $(INSTALLED_RAMDISK_TARGET)
-	zcat $< > $@
+$(uncompressed_ramdisk): $(INSTALLED_RAMDISK_TARGET) $(TARGET_RAMDISK_OUT)
+	$(hide) $(MKBOOTFS) -d $(TARGET_OUT) $(TARGET_RAMDISK_OUT) > $@
 
 recovery_uncompressed_ramdisk := $(PRODUCT_OUT)/ramdisk-recovery.cpio
 recovery_uncompressed_device_ramdisk := $(PRODUCT_OUT)/ramdisk-recovery-device.cpio
@@ -26,10 +26,6 @@ $(recovery_uncompressed_device_ramdisk): $(MKBOOTFS) $(ADBD) \
 	$(hide) cp $(recovery_uncompressed_device_ramdisk) $(recovery_uncompressed_ramdisk)
 
 recovery_ramdisk := $(PRODUCT_OUT)/ramdisk-recovery.img
-$(recovery_ramdisk): $(MINIGZIP) \
-		$(recovery_uncompressed_device_ramdisk)
-	@echo "----- Making compressed recovery ramdisk ------"
-	$(hide) $(MINIGZIP) < $(recovery_uncompressed_ramdisk) > $@
 
 INSTALLED_BOOTIMAGE_TARGET := $(PRODUCT_OUT)/boot.img
 $(INSTALLED_BOOTIMAGE_TARGET): $(PRODUCT_OUT)/kernel \
@@ -37,20 +33,24 @@ $(INSTALLED_BOOTIMAGE_TARGET): $(PRODUCT_OUT)/kernel \
 		$(recovery_uncompressed_device_ramdisk) \
 		$(INSTALLED_RAMDISK_TARGET) \
 		$(INITSONY) \
-		$(TARGET_RECOVERY_ROOT_OUT)/sbin/toybox_static \
+		$(TARGET_RECOVERY_ROOT_OUT)/system/bin/toybox_static \
 		$(PRODUCT_OUT)/utilities/keycheck \
 		$(MKBOOTIMG) $(MINIGZIP) \
 		$(INTERNAL_BOOTIMAGE_FILES)
 
 	@echo "----- Making boot image ------"
 	$(hide) rm -fr $(PRODUCT_OUT)/combinedroot
-	$(hide) cp -a $(PRODUCT_OUT)/root $(PRODUCT_OUT)/combinedroot
+	$(hide) cp -a $(TARGET_ROOT_OUT) $(PRODUCT_OUT)/combinedroot
+	# 17.1 root/init is a symlink to /system/bin/init. Replace it with the
+	# first-stage init so system can be mounted before the second stage runs.
+	$(hide) rm -f $(PRODUCT_OUT)/combinedroot/init
+	$(hide) cp $(TARGET_RAMDISK_OUT)/init $(PRODUCT_OUT)/combinedroot/init
 	$(hide) mkdir -p $(PRODUCT_OUT)/combinedroot/sbin
 
 	$(hide) cp $(DEVICE_LOGORLE) $(PRODUCT_OUT)/combinedroot/logo.rle
 	$(hide) cp $(recovery_uncompressed_ramdisk) $(PRODUCT_OUT)/combinedroot/sbin/
 	$(hide) cp $(PRODUCT_OUT)/utilities/keycheck $(PRODUCT_OUT)/combinedroot/sbin/
-	$(hide) cp $(TARGET_RECOVERY_ROOT_OUT)/sbin/toybox_static $(PRODUCT_OUT)/combinedroot/sbin/toybox_init
+	$(hide) cp $(TARGET_RECOVERY_ROOT_OUT)/system/bin/toybox_static $(PRODUCT_OUT)/combinedroot/sbin/toybox_init
 
 	$(hide) cp $(INITSONY) $(PRODUCT_OUT)/combinedroot/sbin/init_sony
 	$(hide) chmod 755 $(PRODUCT_OUT)/combinedroot/sbin/init_sony

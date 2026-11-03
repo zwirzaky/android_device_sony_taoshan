@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs inside the Ubuntu 16.04 build container (mounted at /src).
-set -o pipefail
+set -eo pipefail
 
 export LC_ALL=C
 export LANG=C
