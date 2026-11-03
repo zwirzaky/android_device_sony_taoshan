@@ -1,7 +1,8 @@
 # taoshan — LineageOS 17.1 bring-up notes
 
-Current state: **boots to UI**, Bluetooth ON, audio policy XML loaded.
-SELinux is still permissive for the bring-up.
+Current state: **boots to UI**, Bluetooth ON, audio policy XML loaded,
+rear/front camera preview works, Snap takes still photos and is the only
+camera app in the product. SELinux is still permissive for the bring-up.
 
 ## Build
 
@@ -24,10 +25,21 @@ The Docker image is `lineage171-builder` (Ubuntu 20.04), see
 - JIT is disabled on the first 17.1 bring-up (kernel 3.4 + ART 10).
 - `netd` gets `bpf.progs_loaded=1` because the 3.4 kernel has no eBPF.
 - `/firmware` and `/persist` mount points are part of the boot/system image.
+- Camera runs the legacy QCamera HAL from `mediaserver` with the huashan
+  linker shims and `camera.qcom` wrapper. `media` and `qcamerasvr` are started
+  from init.
+- The prebuilt QCamera HAL needs the `releaseHeapMem` workaround described in
+  `camera/README-camera-17.1.md`; run `camera/patch-vendor-camera-hal.sh` after
+  importing vendor blobs.
+- Snap is the only camera app (`Camera2` is filtered out in
+  `lineage_taoshan.mk`). Its launcher receiver was removed so the icon is not
+  disabled when the camera service is not ready at boot.
+- Front/rear preview orientation is handled by the HAL; the Snap
+  `persist.camera.*.preview_rotation` values remain 0 and
+  `persist.camera.front.hal_rotation=90`.
 
 ## Known issues
 
-- Camera: `mm-qcamera-daemon` still crashes with SIGILL.
 - GPS is disabled (`product/qcom-gps.mk`); the legacy GNSS HAL blocks
   `system_server` in `GnssLocationProvider.native_init`.
 - SELinux is permissive; enforcing is a later step.
@@ -43,6 +55,11 @@ part of this device-tree branch.
 - device: `zwirzaky/android_device_sony_taoshan`, branch `lineage-17.1`
 - bionic: `zwirzaky/android_bionic`, branch `lineage-17.1`
 - RIL: `zwirzaky/android_hardware_ril`, branch `lineage-17.1`
+
+Camera-related `frameworks/native` and `packages/apps/Snap` changes are
+included as patches under `camera/patches/`; local commits also exist on
+their `lineage-17.1-camera` branches. There is no published fork for those two
+projects yet.
 
 The kernel in this local tree is from the 16.0 bring-up and is published in
 `zwirzaky/android_kernel_sony_msm8930` on the 16.0 branch. `vendor/sony` is a
