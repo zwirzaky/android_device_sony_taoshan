@@ -25,6 +25,10 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+subsystem msm_camera
+    devname uevent_devpath
+    dirname /dev/msm_camera
+
 /dev/graphics/*           0660   system     graphics
 /dev/qseecom              0660   system     drmrpc
 

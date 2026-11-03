@@ -1,0 +1,32 @@
+diff --git a/libs/gui/Surface.cpp b/libs/gui/Surface.cpp
+index b822319d2..5e0d9b30e 100644
+--- a/libs/gui/Surface.cpp
++++ b/libs/gui/Surface.cpp
+@@ -1470,8 +1470,11 @@ int Surface::setBufferCount(int bufferCount)
+         err = mGraphicBufferProducer->query(
+                 NATIVE_WINDOW_MIN_UNDEQUEUED_BUFFERS, &minUndequeuedBuffers);
+         if (err == NO_ERROR) {
++            // The legacy QCamera HAL asks for 7 preview buffers and then
++            // dequeues all of them. The upstream subtraction leaves only 6
++            // dequeuable slots, so its seventh dequeue fails with EINVAL.
+             err = mGraphicBufferProducer->setMaxDequeuedBufferCount(
+-                    bufferCount - minUndequeuedBuffers);
++                    bufferCount);
+         }
+     }
+ 
+diff --git a/libs/ui/GraphicBufferAllocator.cpp b/libs/ui/GraphicBufferAllocator.cpp
+index 8ffef9263..1d218f216 100644
+--- a/libs/ui/GraphicBufferAllocator.cpp
++++ b/libs/ui/GraphicBufferAllocator.cpp
+@@ -132,6 +132,10 @@ status_t GraphicBufferAllocator::allocate(uint32_t width, uint32_t height,
+     usage &= ~static_cast<uint64_t>((1 << 10) | (1 << 13));
+ #endif
+ 
++    // Legacy 32-bit camera HALs pass their usage flags as a signed int. The
++    // upper 32 bits are then a sign extension and are rejected by Gralloc2.
++    usage &= 0xffffffffULL;
++
+     status_t error =
+             mAllocator->allocate(width, height, format, layerCount, usage, 1, stride, handle);
+     size_t bufSize;

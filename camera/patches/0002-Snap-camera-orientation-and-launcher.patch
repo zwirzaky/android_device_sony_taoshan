@@ -1,0 +1,160 @@
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 253491176..90d1bc90c 100755
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -185,11 +185,6 @@
+             android:label="@string/quick_reader_name"
+             android:theme="@style/AppTheme" />
+ 
+-        <receiver android:name="com.android.camera.DisableCameraReceiver">
+-            <intent-filter>
+-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+-            </intent-filter>
+-        </receiver>
+         <receiver android:name="com.android.camera.CameraButtonIntentReceiver">
+             <intent-filter>
+                 <action android:name="android.intent.action.CAMERA_BUTTON"/>
+diff --git a/src/com/android/camera/CameraHolder.java b/src/com/android/camera/CameraHolder.java
+index 8ecc672f9..c2198639a 100755
+--- a/src/com/android/camera/CameraHolder.java
++++ b/src/com/android/camera/CameraHolder.java
+@@ -213,8 +213,11 @@ public class CameraHolder {
+ 
+     private void addCameraInfo(int index, CameraCharacteristics characteristics) {
+         mInfo[index] = new CameraInfo();
+-        mInfo[index].facing = characteristics.get(CameraCharacteristics.LENS_FACING);
+-        mInfo[index].orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
++        int facing = characteristics.get(CameraCharacteristics.LENS_FACING);
++        // The legacy provider reports 0/garbage orientation on taoshan.
++        int orientation = (facing == CameraCharacteristics.LENS_FACING_FRONT) ? 270 : 90;
++        mInfo[index].facing = facing;
++        mInfo[index].orientation = orientation;
+     }
+ 
+     public CameraCharacteristics getCameraCharacteristics(int id) {
+diff --git a/src/com/android/camera/PhotoModule.java b/src/com/android/camera/PhotoModule.java
+index 856bd9335..b2d464455 100755
+--- a/src/com/android/camera/PhotoModule.java
++++ b/src/com/android/camera/PhotoModule.java
+@@ -3039,10 +3039,20 @@ public class PhotoModule
+         mDisplayRotation = CameraUtil.getDisplayRotation(mActivity);
+         mDisplayOrientation = CameraUtil.getDisplayOrientation(mDisplayRotation, mCameraId);
+         mCameraDisplayOrientation = mDisplayOrientation;
++        if (mCameraId == 1) {
++            // taoshan's legacy provider reports the wrong front orientation.
++            // Allow the correct HAL angle to be tuned without a rebuild.
++            mCameraDisplayOrientation = SystemProperties.getInt(
++                    "persist.camera.front.hal_rotation", 90);
++        }
+         // This will be called again in checkDisplayRotation(), so there
+         // should not be any problem even if mUI is null.
+         if (mUI != null) {
+             mUI.setDisplayOrientation(mDisplayOrientation);
++            int previewRotation = mCameraId == 0
++                    ? SystemProperties.getInt("persist.camera.rear.preview_rotation", 0)
++                    : SystemProperties.getInt("persist.camera.front.preview_rotation", 0);
++            mUI.setPreviewRotation(previewRotation);
+         }
+         if (mFocusManager != null) {
+             mFocusManager.setDisplayOrientation(mDisplayOrientation);
+diff --git a/src/com/android/camera/PhotoUI.java b/src/com/android/camera/PhotoUI.java
+index 806a68bad..f5dd71229 100755
+--- a/src/com/android/camera/PhotoUI.java
++++ b/src/com/android/camera/PhotoUI.java
+@@ -978,6 +978,16 @@ public class PhotoUI implements PieListener,
+         mPreviewOrientation = orientation;
+     }
+ 
++    public void setPreviewRotation(int degrees) {
++        if (mSurfaceView != null) {
++            // The taoshan QCamera HAL does not apply the display orientation to
++            // the preview surface. Only the rear sensor needs the extra turn;
++            // the front sensor is already upright.
++            mSurfaceView.setRotation(degrees);
++            Log.d(TAG, "preview surface rotation=" + mSurfaceView.getRotation());
++        }
++    }
++
+     // shutter button handling
+ 
+     public boolean isShutterPressed() {
+diff --git a/src/com/android/camera/util/CameraUtil.java b/src/com/android/camera/util/CameraUtil.java
+index bbd81e35f..5f9fc1446 100755
+--- a/src/com/android/camera/util/CameraUtil.java
++++ b/src/com/android/camera/util/CameraUtil.java
+@@ -555,30 +555,42 @@ public class CameraUtil {
+         return naturalWidth < naturalHeight;
+     }
+ 
++    private static int sanitizeOrientation(int orientation, boolean frontFacing) {
++        // taoshan's legacy provider reports 0 for the rear sensor and garbage
++        // for the front one. Both sensors are physically mounted at 90/270.
++        return frontFacing ? 270 : 90;
++    }
++
+     public static int getDisplayOrientation(int degrees, int cameraId) {
+         // See android.hardware.Camera.setDisplayOrientation for
+         // documentation.
+         Camera.CameraInfo info = new Camera.CameraInfo();
+         Camera.getCameraInfo(cameraId, info);
++        int orientation = sanitizeOrientation(info.orientation,
++                info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+         int result;
+         if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+-            result = (info.orientation + degrees) % 360;
++            result = (orientation + degrees) % 360;
+             result = (360 - result) % 360;  // compensate the mirror
+         } else {  // back-facing
+-            result = (info.orientation - degrees + 360) % 360;
++            result = (orientation - degrees + 360) % 360;
+         }
+         return result;
+     }
+ 
+     public static int getDisplayOrientationForCamera2(int degrees, int cameraId) {
+         CameraCharacteristics info = CameraHolder.instance().getCameraCharacteristics(cameraId);
++        int sensorOrientation = sanitizeOrientation(
++                info.get(CameraCharacteristics.SENSOR_ORIENTATION),
++                info.get(CameraCharacteristics.LENS_FACING) ==
++                        CameraCharacteristics.LENS_FACING_FRONT);
+         int result;
+         if (info.get(CameraCharacteristics.LENS_FACING) ==
+                 CameraCharacteristics.LENS_FACING_FRONT) {
+-            result = (info.get(CameraCharacteristics.SENSOR_ORIENTATION) + degrees) % 360;
++            result = (sensorOrientation + degrees) % 360;
+             result = (360 - result) % 360;  // compensate the mirror
+         } else {
+-            result = (info.get(CameraCharacteristics.SENSOR_ORIENTATION) - degrees + 360) % 360;
++            result = (sensorOrientation - degrees + 360) % 360;
+         }
+         return result;
+     }
+@@ -586,7 +598,8 @@ public class CameraUtil {
+     public static int getCameraOrientation(int cameraId) {
+         Camera.CameraInfo info = new Camera.CameraInfo();
+         Camera.getCameraInfo(cameraId, info);
+-        return info.orientation;
++        return sanitizeOrientation(info.orientation,
++                info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+     }
+ 
+     public static int roundOrientation(int orientation, int orientationHistory) {
+@@ -1075,12 +1088,15 @@ public class CameraUtil {
+             orientation = 0;
+         }
+         CameraCharacteristics info = CameraHolder.instance().getCameraCharacteristics(cameraId);
++        int sensorOrientation = sanitizeOrientation(
++                info.get(CameraCharacteristics.SENSOR_ORIENTATION),
++                info.get(CameraCharacteristics.LENS_FACING) ==
++                        CameraCharacteristics.LENS_FACING_FRONT);
+         if (info.get(CameraCharacteristics.LENS_FACING) ==
+                 CameraCharacteristics.LENS_FACING_FRONT) {
+-            rotation = (info.get(CameraCharacteristics.SENSOR_ORIENTATION)
+-                    - orientation + 360) % 360;
++            rotation = (sensorOrientation - orientation + 360) % 360;
+         } else {  // back-facing camera
+-            rotation = (info.get(CameraCharacteristics.SENSOR_ORIENTATION) + orientation) % 360;
++            rotation = (sensorOrientation + orientation) % 360;
+         }
+         return rotation;
+     }
