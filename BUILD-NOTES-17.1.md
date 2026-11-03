@@ -37,3 +37,13 @@ The Docker image is `lineage171-builder` (Ubuntu 20.04), see
 `vendor/sony` and `kernel/sony/msm8930` in this tree were copied from the
 16.0 bring-up. The kernel fork is published separately; vendor blobs are not
 part of this device-tree branch.
+
+## Published 17.1 branches
+
+- device: `zwirzaky/android_device_sony_taoshan`, branch `lineage-17.1`
+- bionic: `zwirzaky/android_bionic`, branch `lineage-17.1`
+- RIL: `zwirzaky/android_hardware_ril`, branch `lineage-17.1`
+
+The kernel in this local tree is from the 16.0 bring-up and is published in
+`zwirzaky/android_kernel_sony_msm8930` on the 16.0 branch. `vendor/sony` is a
+local copy of the 16.0 proprietary tree and is not part of this branch.
