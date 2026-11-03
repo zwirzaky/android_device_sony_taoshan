@@ -55,11 +55,12 @@ part of this device-tree branch.
 - device: `zwirzaky/android_device_sony_taoshan`, branch `lineage-17.1`
 - bionic: `zwirzaky/android_bionic`, branch `lineage-17.1`
 - RIL: `zwirzaky/android_hardware_ril`, branch `lineage-17.1`
+- camera HAL: `zwirzaky/proprietary_vendor_sony`, branch `lineage-17.1`
+- Snap: `zwirzaky/android_packages_apps_Snap`, branch `lineage-17.1`
+- native: `zwirzaky/android_frameworks_native`, branch `lineage-17.1`
 
-Camera-related `frameworks/native` and `packages/apps/Snap` changes are
-included as patches under `camera/patches/`; local commits also exist on
-their `lineage-17.1-camera` branches. There is no published fork for those two
-projects yet.
+The camera changes are also mirrored as patches under `camera/patches/` for
+reference.
 
 The kernel in this local tree is from the 16.0 bring-up and is published in
 `zwirzaky/android_kernel_sony_msm8930` on the 16.0 branch. `vendor/sony` is a
