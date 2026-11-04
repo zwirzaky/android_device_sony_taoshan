@@ -73,7 +73,7 @@ service and must be started explicitly; the boot image now does that. The
 WCNSS config is copied to both `/system/etc/wifi` and `/vendor/etc/wifi`, and
 `/dev/wcnss_ctrl` is exposed as `system:system 0660`.
 
-`wificond`/`wpa_supplicant` are started by the framework when WiFi is enabled
-from the UI. A cold `svc wifi enable` issued before `wificond` is ready can
-report "Wi-Fi service is not ready"; wait for boot completion and toggle WiFi
-from Settings.
+`wificond_ready` is a small oneshot service that waits 8 seconds after boot and
+starts `wificond` and `wpa_supplicant`, whose rc files are imported after
+`init.qcom.rc`. This makes the first UI WiFi toggle work without a manual
+`ctl.start`.

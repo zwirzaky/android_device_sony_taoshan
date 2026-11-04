@@ -258,6 +258,7 @@ on boot
     # WCNSS is a late_start oneshot service; start it explicitly so WiFi is
     # ready when the framework enables the interface.
     start wcnss-service
+    start wificond_ready
     setprop persist.camera.rear.preview_rotation 0
     setprop persist.camera.front.preview_rotation 0
     setprop persist.camera.front.hal_rotation 90
@@ -466,6 +467,14 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
    class late_start
    user camera
    group camera system inet input graphics
+
+# wificond/wpa_supplicant are imported after init.qcom.rc. Delay their start
+# until those service definitions are available.
+service wificond_ready /system/bin/sh /system/etc/wificond_ready.sh
+   class late_start
+   user root
+   group root
+   oneshot
 
 service qseecomd /system/bin/qseecomd
    class late_start
