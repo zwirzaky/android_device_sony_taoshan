@@ -255,6 +255,9 @@ on boot
     write /sys/devices/i2c-3/3-0024/cyttsp_update_fw 1
     write /sys/devices/i2c-3/3-005b/update_fw 1
     start qcamerasvr
+    # WCNSS is a late_start oneshot service; start it explicitly so WiFi is
+    # ready when the framework enables the interface.
+    start wcnss-service
     setprop persist.camera.rear.preview_rotation 0
     setprop persist.camera.front.preview_rotation 0
     setprop persist.camera.front.hal_rotation 90

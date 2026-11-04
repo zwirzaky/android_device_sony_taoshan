@@ -213,3 +213,4 @@ subsystem msm_camera
 
 # wlan
 /dev/wcnss_wlan           0660   system     system
+/dev/wcnss_ctrl           0660   system     system

@@ -65,3 +65,15 @@ reference.
 The kernel in this local tree is from the 16.0 bring-up and is published in
 `zwirzaky/android_kernel_sony_msm8930` on the 16.0 branch. `vendor/sony` is a
 local copy of the 16.0 proprietary tree and is not part of this branch.
+
+## WiFi
+
+WiFi uses the legacy WCNSS stack. `wcnss-service` is a late-start oneshot
+service and must be started explicitly; the boot image now does that. The
+WCNSS config is copied to both `/system/etc/wifi` and `/vendor/etc/wifi`, and
+`/dev/wcnss_ctrl` is exposed as `system:system 0660`.
+
+`wificond`/`wpa_supplicant` are started by the framework when WiFi is enabled
+from the UI. A cold `svc wifi enable` issued before `wificond` is ready can
+report "Wi-Fi service is not ready"; wait for boot completion and toggle WiFi
+from Settings.
