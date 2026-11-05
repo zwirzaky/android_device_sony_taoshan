@@ -425,6 +425,10 @@ on property:sys.boot_completed=1
     # legacy camera services after the service definitions are available.
     start media
     start qcamerasvr
+    # Also imported late; start after the service definitions exist.
+    start vendor.media.omx
+    start mediaextractor
+    start media.swcodec
 
 service profiler_daemon /system/bin/profiler_daemon
     class late_start
@@ -512,6 +516,13 @@ on boot
     # mediaserver owns the legacy camera service on this platform. Its rc file
     # is imported late, so class_start main misses it on 17.1.
     start media
+    # These rc files are imported late as well. vendor.media.omx must be up
+    # before the media codec list is built, otherwise the QC OMX components
+    # are missing and StagefrightRecorder falls back to the Google software
+    # encoder (which cannot consume legacy camera metadata buffers).
+    start vendor.media.omx
+    start mediaextractor
+    start media.swcodec
 
 
 # Kernel 3.4 has no eBPF; netd otherwise waits forever for bpf.progs_loaded.

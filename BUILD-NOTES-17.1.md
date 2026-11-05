@@ -77,3 +77,33 @@ WCNSS config is copied to both `/system/etc/wifi` and `/vendor/etc/wifi`, and
 starts `wificond` and `wpa_supplicant`, whose rc files are imported after
 `init.qcom.rc`. This makes the first UI WiFi toggle work without a manual
 `ctl.start`.
+
+## Video recording (17.1)
+
+Video recording uses the legacy QCamera path in `mediaserver` together with
+the QC OMX encoder. Two details are required:
+
+- Do **not** run a separate `cameraserver` on this tree. The legacy camera
+  recording callback passes a `VideoNativeHandleMetadata` whose
+  `native_handle_t` lives in the camera HAL address space. With the HAL in
+  `cameraserver`, `mediaserver` dereferences a foreign pointer and crashes in
+  `libhidlbase` (`writeNativeHandleNoDup`). Keep
+  `TARGET_HAS_LEGACY_CAMERA_HAL1 := true` so the HAL and the encoder share
+  `mediaserver`.
+- Codec2's software encoder rejects the legacy camera metadata buffers
+  (`Only ANW buffers are supported for legacy metadata mode`), so
+  `debug.stagefright.ccodec=0` forces the OMX path. `vendor.media.omx` must
+  have the `audio` and `system` groups to open `/dev/msm_vidc_{enc,dec}` and
+  `/dev/ion`.
+
+`vendor.media.omx`, `mediaextractor` and `media.swcodec` are imported after
+`class_start main` on this boot image; `init.qcom.rc` starts them explicitly.
+`media.swcodec` is kept running so `MediaRecorderClient::setListener()` can
+create its Codec2 death listeners without blocking; the actual video codecs
+still come from OMX. `MediaRecorderClient::setListener()` also uses
+`checkService("media.camera")` instead of the blocking `getService()`.
+
+A 1280x720 H.264/AAC recording was verified end-to-end (16.7 s, ~23.7 MB,
+valid moov atom). The MediaProvider database is still being rebuilt after the
+17.1 upgrade, so newly recorded files may not appear in MediaStore until the
+provider is repaired; the MP4/JPEG files themselves are written correctly.

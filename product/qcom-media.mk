@@ -25,5 +25,6 @@ PRODUCT_PACKAGES += \
 # DRM properties
 PRODUCT_PROPERTY_OVERRIDES += \
     media.stagefright.legacyencoder=true \
-    media.stagefright.less-secure=true
+    media.stagefright.less-secure=true \
+    debug.stagefright.ccodec=0
 
