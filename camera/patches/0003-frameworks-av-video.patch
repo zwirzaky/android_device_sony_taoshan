@@ -1,0 +1,63 @@
+From be3d10fbf8ccbd44633d218dbd8f6cda5a09174b Mon Sep 17 00:00:00 2001
+From: zwirzaky <mateuszburzynki@gmail.com>
+Date: Thu, 5 Nov 2026 17:50:35 +0100
+Subject: [PATCH] taoshan: unblock MediaRecorder and legacy OMX codecs
+
+Use checkService(media.camera) in MediaRecorderClient::setListener so a starting camera service cannot block the recorder server, and let the OMX service open the legacy QC video devices by adding the audio/system groups.
+
+Change-Id: I3a141739c07c5bd7343cc6704d690b8639078f45
+---
+ media/libmediaplayerservice/MediaRecorderClient.cpp | 13 +++++--------
+ .../android.hardware.media.omx@1.0-service.rc       |  4 +++-
+ 2 files changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/media/libmediaplayerservice/MediaRecorderClient.cpp b/media/libmediaplayerservice/MediaRecorderClient.cpp
+index 703da4b98..0e77e0a04 100644
+--- a/media/libmediaplayerservice/MediaRecorderClient.cpp
++++ b/media/libmediaplayerservice/MediaRecorderClient.cpp
+@@ -391,15 +391,13 @@ status_t MediaRecorderClient::setListener(const sp<IMediaRecorderClient>& listen
+ 
+     sp<IServiceManager> sm = defaultServiceManager();
+ 
+-    // WORKAROUND: We don't know if camera exists here and getService might block for 5 seconds.
+-    // Use checkService for camera if we don't know it exists.
+-    static std::atomic<bool> sCameraChecked(false);  // once true never becomes false.
+-    static std::atomic<bool> sCameraVerified(false); // once true never becomes false.
+-    sp<IBinder> binder = (sCameraVerified || !sCameraChecked)
+-        ? sm->getService(String16("media.camera")) : sm->checkService(String16("media.camera"));
++    // taoshan: getService("media.camera") blocks the media recorder server here
++    // when the camera service is still coming up (observed as an app ANR in
++    // MediaRecorder.setVideoSource). checkService is non-blocking and is enough
++    // for the optional camera death listener.
++    sp<IBinder> binder = sm->checkService(String16("media.camera"));
+     // If the device does not have a camera, do not create a death listener for it.
+     if (binder != NULL) {
+-        sCameraVerified = true;
+         mDeathNotifiers.emplace_back(
+                 binder, [l = wp<IMediaRecorderClient>(listener)](){
+             sp<IMediaRecorderClient> listener = l.promote();
+@@ -414,7 +412,6 @@ status_t MediaRecorderClient::setListener(const sp<IMediaRecorderClient>& listen
+             }
+         });
+     }
+-    sCameraChecked = true;
+ 
+     {
+         using ::android::hidl::base::V1_0::IBase;
+diff --git a/services/mediacodec/android.hardware.media.omx@1.0-service.rc b/services/mediacodec/android.hardware.media.omx@1.0-service.rc
+index 3ef9a853e..a81061260 100644
+--- a/services/mediacodec/android.hardware.media.omx@1.0-service.rc
++++ b/services/mediacodec/android.hardware.media.omx@1.0-service.rc
+@@ -1,6 +1,8 @@
+ service vendor.media.omx /vendor/bin/hw/android.hardware.media.omx@1.0-service
+     class main
+     user mediacodec
+-    group camera drmrpc mediadrm
++    # taoshan: the legacy QC OMX codecs open /dev/msm_vidc_{enc,dec}
++    # (system:audio 0660) and /dev/ion (system:system 0664).
++    group audio system camera drmrpc mediadrm
+     ioprio rt 4
+     writepid /dev/cpuset/foreground/tasks
+-- 
+2.56.0
+
