@@ -432,6 +432,9 @@ on property:sys.boot_completed=1
     start storaged
     start mediametrics
     start gatekeeperd
+    start qmuxd
+    start netmgrd
+    start ril-daemon
 
 service profiler_daemon /system/bin/profiler_daemon
     class late_start
@@ -529,6 +532,9 @@ on boot
     start storaged
     start mediametrics
     start gatekeeperd
+    start qmuxd
+    start netmgrd
+    start ril-daemon
 
 
 # Kernel 3.4 has no eBPF; netd otherwise waits forever for bpf.progs_loaded.
