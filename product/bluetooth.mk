@@ -9,4 +9,5 @@ PRODUCT_PROPERTY_OVERRIDES += \
     vendor.qcom.bluetooth.soc=smd \
     ro.bt.bdaddr_path=/data/misc/bluetooth/bdaddr \
     ro.bluetooth.hfp.ver=1.6 \
-    ro.qualcomm.bt.hci_transport=smd
+    ro.qualcomm.bt.hci_transport=smd \
+    bluetooth.enable_timeout_ms=15000
