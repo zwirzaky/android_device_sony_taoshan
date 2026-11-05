@@ -107,3 +107,27 @@ A 1280x720 H.264/AAC recording was verified end-to-end (16.7 s, ~23.7 MB,
 valid moov atom). The MediaProvider database is still being rebuilt after the
 17.1 upgrade, so newly recorded files may not appear in MediaStore until the
 provider is repaired; the MP4/JPEG files themselves are written correctly.
+
+## Late init services and first-boot traps
+
+Several rc files are imported after `class_start main` on this boot image.
+`init.qcom.rc` therefore starts `media`, `qcamerasvr`, `vendor.media.omx`,
+`mediaextractor`, `media.swcodec`, `storaged`, `mediametrics` and
+`gatekeeperd` explicitly. In particular:
+
+- Without `gatekeeperd`, `LockSettingsService$DeviceProvisionedObserver`
+  crashes `system_server` with a null `IGateKeeperService` when the setup
+  wizard marks the device provisioned. This looks like a spontaneous reboot.
+- Without `storaged`, `StorageManagerService` retries for a long time and
+  user 0 can remain locked (`RUNNING_LOCKED`).
+
+When a package is removed from `PRODUCT_PACKAGES`, its files can remain in
+`out/target/product/taoshan/system` from an earlier build. This bit us with
+`cameraserver` and the GPS HAL: a stale `cameraserver` owned `media.camera`
+and rejected user 0, and stale GPS files kept the GNSS watchdog alive. Before
+switching these features off, delete the stale files from the output tree (or
+run `make installclean`).
+
+`btmac.sh` now falls back to a fixed valid BD address when the stock Sony
+`/data/etc/bluetooth_bdaddr` is missing after a data wipe. Without a BD
+address the Bluetooth stack aborts with `startup_timer_expired`.

@@ -429,6 +429,9 @@ on property:sys.boot_completed=1
     start vendor.media.omx
     start mediaextractor
     start media.swcodec
+    start storaged
+    start mediametrics
+    start gatekeeperd
 
 service profiler_daemon /system/bin/profiler_daemon
     class late_start
@@ -523,6 +526,9 @@ on boot
     start vendor.media.omx
     start mediaextractor
     start media.swcodec
+    start storaged
+    start mediametrics
+    start gatekeeperd
 
 
 # Kernel 3.4 has no eBPF; netd otherwise waits forever for bpf.progs_loaded.
