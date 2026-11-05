@@ -131,3 +131,23 @@ run `make installclean`).
 `btmac.sh` now falls back to a fixed valid BD address when the stock Sony
 `/data/etc/bluetooth_bdaddr` is missing after a data wipe. Without a BD
 address the Bluetooth stack aborts with `startup_timer_expired`.
+
+## Bluetooth timeout
+
+The legacy SMD firmware load often takes longer than the 2.9 s default in
+`system/bt/hci/src/hci_layer.cc`. `bluetooth.enable_timeout_ms=15000` in
+`product/bluetooth.mk` prevents the `startup_timer_expired` abort at boot.
+The fallback BD address in `btmac.sh` is still needed after a data wipe.
+
+## QMI/RIL status
+
+`qmuxd`, `netmgrd` and `rild` are present but are not started at boot:
+starting them before the HIDL radio service exists made user 0 stay locked
+and could hang the boot. `android.hardware.radio@1.0::IRadio/slot1` is still
+missing, so telephony is not functional yet. The legacy GNSS HAL also needs
+`qmuxd`, so GPS remains disabled until the radio/GNSS stack is ported.
+
+## First boot timing
+
+After a cache/dalvik wipe the first boot can take 3-4 minutes on this device;
+the system eventually reports `RUNNING_UNLOCKED` and ADB comes up late.
