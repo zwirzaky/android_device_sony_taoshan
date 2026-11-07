@@ -41,7 +41,8 @@ The Docker image is `lineage171-builder` (Ubuntu 20.04), see
 ## Known issues
 
 - GPS is disabled (`product/qcom-gps.mk`); the legacy GNSS HAL blocks
-  `system_server` in `GnssLocationProvider.native_init`.
+  `system_server` in `GnssLocationProvider.native_init`, even with QMI/RIL
+  and the GNSS HIDL service running. It needs a HAL port.
 - SELinux is permissive; enforcing is a later step.
 
 ## Local-only pieces
@@ -141,11 +142,24 @@ The fallback BD address in `btmac.sh` is still needed after a data wipe.
 
 ## QMI/RIL status
 
-`qmuxd`, `netmgrd` and `rild` are present but are not started at boot:
-starting them before the HIDL radio service exists made user 0 stay locked
-and could hang the boot. `android.hardware.radio@1.0::IRadio/slot1` is still
-missing, so telephony is not functional yet. The legacy GNSS HAL also needs
-`qmuxd`, so GPS remains disabled until the radio/GNSS stack is ported.
+`qmuxd`, `netmgrd` and `rild` are started from init. The legacy Qualcomm RIL
+initializes (`gsm.version.ril-impl=Qualcomm RIL 1.0`, radio power on) and the
+repeated `com.android.phone` ANR is gone. With no SIM inserted the service
+state is naturally OUT_OF_SERVICE. `rild` may abort once in
+`qcril_qmi_voice_request_set_tty_mode` during startup and then restart; this
+is harmless for a no-SIM bring-up.
+
+GPS is still not functional: the legacy `gps.msm8960` HAL blocks
+`GnssLocationProvider.native_init` even when qmuxd/netmgrd/rild and
+`android.hardware.gnss@1.0-service` are running. A GNSS HAL port is required.
+
+## USB and MTP
+
+USB ADB works with `sys.usb.config=adb`. MTP/file transfer currently fails to
+open a session (`PTP_ERROR_IO`); this is tied to the MediaProvider/volume
+mapping (the primary public volume is `C808-06D4`, while MediaStore's
+`external` volume resolves to `A501-0DEE`). Fix MediaProvider/storage before
+relying on MTP or gallery indexing.
 
 ## First boot timing
 
