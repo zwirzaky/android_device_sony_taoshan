@@ -4,3 +4,6 @@ set_prop(system_server, ctl_default_prop)
 allow system_server system_file:file execmod;
 allow system_server sysfs:file r_file_perms;
 allow system_server proc:file r_file_perms;
+
+# system_server talks to init over its binder service on this legacy tree.
+allow system_server init:binder call;

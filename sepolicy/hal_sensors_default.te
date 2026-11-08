@@ -1,0 +1,2 @@
+# The old sensor HAL enables the compass through sysfs.
+allow hal_sensors_default sysfs:file { open read write getattr };

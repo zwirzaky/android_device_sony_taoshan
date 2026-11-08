@@ -170,3 +170,16 @@ primary volume, so the scanner and gallery see files on `C808-06D4`.
 
 After a cache/dalvik wipe the first boot can take 3-4 minutes on this device;
 the system eventually reports `RUNNING_UNLOCKED` and ADB comes up late.
+
+## SELinux status
+
+SELinux is still **permissive**. Policy additions cover the main bring-up
+denials (zygote writing cpuset tasks, storaged reading block stats, the
+sensor HAL's compass sysfs writes, akmd calibration data, and system_server's
+init binder calls). Platform-domain rules live in `sepolicy_platform`
+(`BOARD_PLAT_PRIVATE_SEPOLICY_DIR`), vendor-domain rules in `sepolicy`.
+
+Runtime `setenforce 1` reaches Enforcing, but CameraService then deadlocks
+and USB/ADB becomes unavailable. Booting with `androidboot.selinux=enforcing`
+does not complete boot yet. Do not make enforcing permanent until the camera
+and adb policy holes are fixed.

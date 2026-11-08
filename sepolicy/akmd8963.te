@@ -4,3 +4,6 @@ type akmd8963_device, dev_type;
 init_daemon_domain(akmd8963)
 
 allow akmd8963 akmd8963_device:chr_file rw_file_perms;
+
+# akmd keeps its calibration data in /data/misc/akmd_set.txt.
+allow akmd8963 system_data_file:file { open read write getattr };

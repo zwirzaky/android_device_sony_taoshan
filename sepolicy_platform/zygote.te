@@ -1,0 +1,3 @@
+# Legacy cpuset files live under /dev and are labeled device. Zygote writes
+# tasks there when placing processes.
+allow zygote device:file { open write getattr };

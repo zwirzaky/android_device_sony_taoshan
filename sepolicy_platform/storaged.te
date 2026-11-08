@@ -1,0 +1,2 @@
+# storaged reads the eMMC block statistics from sysfs.
+allow storaged sysfs:file { open read getattr };
