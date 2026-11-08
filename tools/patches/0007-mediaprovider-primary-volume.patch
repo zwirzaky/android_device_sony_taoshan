@@ -1,0 +1,30 @@
+diff --git a/src/com/android/providers/media/MediaProvider.java b/src/com/android/providers/media/MediaProvider.java
+index 6e15836..82a2c1c 100644
+--- a/src/com/android/providers/media/MediaProvider.java
++++ b/src/com/android/providers/media/MediaProvider.java
+@@ -2309,9 +2309,23 @@ public class MediaProvider extends ContentProvider {
+             final String volumeName = matcher.group(1);
+             if (volumeName.equals("emulated")) {
+                 return MediaStore.VOLUME_EXTERNAL_PRIMARY;
+-            } else {
+-                return StorageVolume.normalizeUuid(volumeName);
+             }
++            // On devices whose primary storage is a physical volume (for
++            // example C808-06D4 here), MediaStore exposes that volume as
++            // external_primary.  Keep the on-disk volume_name column
++            // consistent with that public name, otherwise the media scanner
++            // writes rows under c808-06d4 and they are invisible to
++            // content://media/external.
++            try {
++                final StorageManager sm = AppGlobals.getInitialApplication()
++                        .getSystemService(StorageManager.class);
++                final StorageVolume sv = sm.getStorageVolume(new File(data));
++                if (sv != null && sv.isPrimary()) {
++                    return MediaStore.VOLUME_EXTERNAL_PRIMARY;
++                }
++            } catch (Exception ignored) {
++            }
++            return StorageVolume.normalizeUuid(volumeName);
+         } else {
+             return MediaStore.VOLUME_INTERNAL;
+         }

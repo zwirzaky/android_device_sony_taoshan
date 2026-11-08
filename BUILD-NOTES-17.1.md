@@ -155,11 +155,16 @@ GPS is still not functional: the legacy `gps.msm8960` HAL blocks
 
 ## USB and MTP
 
-USB ADB works with `sys.usb.config=adb`. MTP/file transfer currently fails to
-open a session (`PTP_ERROR_IO`); this is tied to the MediaProvider/volume
-mapping (the primary public volume is `C808-06D4`, while MediaStore's
-`external` volume resolves to `A501-0DEE`). Fix MediaProvider/storage before
-relying on MTP or gallery indexing.
+USB ADB now works after a normal reboot without unplugging the cable. The
+earlier replug requirement was caused by the boot-time `usb_reenum` USB
+soft-connect toggle and by `persist.sys.usb.config=mtp,adb`; both are gone.
+Keep `persist.sys.usb.config=adb` and do not toggle the UDC during boot.
+
+MTP/file transfer is still limited by MediaProvider. The primary public
+volume is `C808-06D4`, but MediaStore's `external` volume previously resolved
+to `A501-0DEE`. `tools/patches/0007-mediaprovider-primary-volume.patch`
+makes `extractVolumeName()` return `external_primary` for the physical
+primary volume, so the scanner and gallery see files on `C808-06D4`.
 
 ## First boot timing
 
