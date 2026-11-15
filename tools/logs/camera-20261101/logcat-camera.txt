@@ -1,0 +1,10 @@
+11-01 09:51:05.278   307   307 I auditd  : type=1400 audit(0.0:581): avc: denied { ioctl } for comm="mm-qcamera-daem" path="/dev/video100" dev="tmpfs" ino=6619 ioctlcmd=5659 scontext=u:r:init:s0 tcontext=u:object_r:camera_device:s0 tclass=chr_file
+11-01 09:51:05.291  3024  3024 I auditd  : type=1400 audit(0.0:582): avc: denied { write } for comm="mm-qcamera-daem" name="config0" dev="tmpfs" ino=6594 scontext=u:r:init:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file
+11-01 09:51:05.291  3024  3024 I auditd  : type=1400 audit(0.0:583): avc: granted { read open } for comm="mm-qcamera-daem" name="config0" dev="tmpfs" ino=6594 scontext=u:r:init:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file
+11-01 09:51:05.291  3024  3024 I auditd  : type=1400 audit(0.0:584): avc: denied { read } for comm="mm-qcamera-daem" name="id" dev="sysfs" ino=2800 scontext=u:r:init:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+11-01 09:51:05.291  3024  3024 I auditd  : type=1400 audit(0.0:585): avc: denied { open } for comm="mm-qcamera-daem" name="id" dev="sysfs" ino=2800 scontext=u:r:init:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+11-01 09:51:05.291  3024  3024 I auditd  : type=1400 audit(0.0:586): avc: denied { ioctl } for comm="mm-qcamera-daem" path="/dev/msm_camera/config0" dev="tmpfs" ino=6594 ioctlcmd=565a scontext=u:r:init:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file
+11-01 09:51:05.295  2512  2512 I auditd  : type=1400 audit(0.0:587): avc: denied { write } for comm="mediaserver" name="cam_socket0" dev="mmcblk0p31" ino=12 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file
+11-01 09:59:05.431  2512  2512 E QualcommCamera: Qint android::get_camera_info(int, camera_info*): E
+11-01 09:59:08.691  2512  2860 E QualcommCamera: Qint android::get_camera_info(int, camera_info*): E
+11-01 09:59:08.692  2512  2860 E QualcommCamera: Qint android::get_camera_info(int, camera_info*): E

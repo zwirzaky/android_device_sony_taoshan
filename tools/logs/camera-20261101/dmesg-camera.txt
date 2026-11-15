@@ -1,0 +1,5 @@
+[  993.376773] type=1400 audit(1793566440.300:678): avc: denied { getattr } for pid=452 comm="storaged" path="/sys/devices/platform/msm_sdcc.1/mmc_host/mmc0/mmc0:0001/block/mmcblk0/stat" dev="sysfs" ino=15972 scontext=u:r:storaged:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+[ 1111.036868] qup_i2c qup_i2c.0: QUP: I2C status flags :0x1300c8, irq:222
+[ 1111.036898] qup_i2c qup_i2c.0: I2C slave addr:0x28 not connected
+[ 1115.130779] type=1400 audit(1793566748.005:689): avc: denied { getattr } for pid=237 comm="healthd" path="/sys/devices/platform/msm_ssbi.0/pm8038-core/pm8921-charger/power_supply/battery/present" dev="sysfs" ino=18760 scontext=u:r:healthd:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+[ 1115.181046] type=1400 audit(1793566748.005:689): avc: denied { getattr } for pid=237 comm="healthd" path="/sys/devices/platform/msm_ssbi.0/pm8038-core/pm8921-charger/power_supply/battery/present" dev="sysfs" ino=18760 scontext=u:r:healthd:s0 tcontext=u:object_r:sysfs:s0 tclass=file
